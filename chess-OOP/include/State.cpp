@@ -1,5 +1,12 @@
 #include "State.h"
-using std::fstream;
+#include <nlohmann/json.hpp>
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+
+using json = nlohmann::json;
+using std::ofstream;
+using std::ifstream;
 using std::string;
 
 State::State() {}
@@ -10,12 +17,6 @@ State::State(Piece* board[8][8], MoveNode* prevMove) {
 
     // Copy prev move
     _prevMove = prevMove;
-
-    // Clear files
-    _file.open("./build/board.txt", fstream::out | fstream::trunc);
-    _file.close();
-    _file.open("./build/moves.txt", fstream::out | fstream::trunc);
-    _file.close();
 }
 
 void State::updateBoard(Piece* board[8][8]) {
@@ -121,101 +122,120 @@ string State::storePiece(Piece* piece) {
 }
 
 bool State::loadCurrentBoard() {
-    // Load board saved at ./build/board.txt to currentBoard
-    _file.open("./build/board.txt", fstream::in);
-    if (!_file.is_open()) return false;
-
-    char thisLine[82];
-    int thisChar = 0;
-    string thisPiece;
-    for (int rank = 7; rank >= 0; rank--) {
-        _file.getline(thisLine, 81);
-        thisChar = 0;
-        for (int file = 0; file < 8; file++) {
-            thisPiece = "";
-            // Export character data to string
-            while (thisLine[thisChar] != '{') {
-                thisChar++;
+    // Load board from JSON file
+    ifstream file("./build/board.json");
+    if (!file.is_open()) return false;
+    
+    try {
+        json j;
+        file >> j;
+        file.close();
+        
+        // Load board from JSON
+        // Note: JSON stores rank 0 as bottom (white's home rank)
+        for (int rank = 0; rank < 8; rank++) {
+            for (int file = 0; file < 8; file++) {
+                auto& square = j[rank][file];
+                std::string type = square["type"].get<std::string>();
+                
+                if (!type.empty()) {
+                    char pieceType = type[0];
+                    char color = square["color"].get<std::string>()[0];
+                    int moved = square["moved"];
+                    
+                    Piece* piece = nullptr;
+                    switch(pieceType) {
+                        case 'p': piece = new Pawn(color); break;
+                        case 'r': piece = new Rook(color); break;
+                        case 'n': piece = new Knight(color); break;
+                        case 'b': piece = new Bishop(color); break;
+                        case 'q': piece = new Queen(color); break;
+                        case 'k': piece = new King(color); break;
+                    }
+                    
+                    if (piece) {
+                        piece->setMoveCount(moved);
+                        currentBoard[file][rank] = piece;
+                    }
+                } else {
+                    currentBoard[file][rank] = nullptr;
+                }
             }
-            while (thisLine[thisChar] != '}') {
-                thisChar++;
-                thisPiece += thisLine[thisChar];
-            }
-            // Make piece
-            currentBoard[file][rank] = makePiece(thisPiece);
         }
+        return true;
+    } catch (const std::exception& e) {
+        std::cerr << "Error loading board: " << e.what() << std::endl;
+        return false;
     }
-    _file.close();
-    return true;
 }
 
 bool State::loadPrevMoves() {
-    // Load Previous Moves saved at ./build/board.txt to _prevMove
-    _file.open("./build/moves.txt", fstream::in);
-    if (!_file.is_open()) return false;
-
-    // Declare vars
-    int oldFile, oldRank, newFile, newRank;
-    bool enPassant;
-    Piece *capturePiece, *promotePiece;
-    _prevMove = new MoveNode();
-
-    char thisLine[40];
-    int i = 1;
-    _file.getline(thisLine, 39);
-    while (thisLine[0] == '{') {
-        i = 1;
-        // Get Moves
-        while (thisLine[i] == ',' || thisLine[i] == ' ') i++;
-        oldFile = (int)thisLine[i] - '0';
-        i++;
-        while (thisLine[i] == ',' || thisLine[i] == ' ') i++;
-        oldRank = (int)thisLine[i] - '0';
-        i++;
-        while (thisLine[i] == ',' || thisLine[i] == ' ') i++;
-        newFile = (int)thisLine[i] - '0';
-        i++;
-        while (thisLine[i] == ',' || thisLine[i] == ' ') i++;
-        newRank = (int)thisLine[i] - '0';
-
-        // Get capture piece
-        while (thisLine[i] != '{') i++;
-        string newPiece = "";
-        i++;
-        while (thisLine[i] != '}') {
-            newPiece += thisLine[i];
-            i++;
+    // Load moves from JSON file
+    ifstream file("./build/moves.json");
+    if (!file.is_open()) return false;
+    
+    try {
+        json j;
+        file >> j;
+        file.close();
+        
+        _prevMove = new MoveNode();
+        
+        // Apply moves from JSON
+        for (const auto& moveJson : j) {
+            int startRow = moveJson["startRow"];
+            int startCol = moveJson["startCol"];
+            int endRow = moveJson["endRow"];
+            int endCol = moveJson["endCol"];
+            bool isSpecial = moveJson["isSpecial"];
+            
+            // Handle captured piece
+            Piece* capturedPiece = nullptr;
+            if (!moveJson["capturedPiece"].is_null()) {
+                char type = moveJson["capturedPiece"].get<std::string>()[0];
+                // For captured pieces, we don't know the color from the JSON
+                // We'll need to determine it from context or store it properly
+                char color = 'B'; // Default - we need better logic here
+                
+                switch(type) {
+                    case 'p': capturedPiece = new Pawn(color); break;
+                    case 'r': capturedPiece = new Rook(color); break;
+                    case 'n': capturedPiece = new Knight(color); break;
+                    case 'b': capturedPiece = new Bishop(color); break;
+                    case 'q': capturedPiece = new Queen(color); break;
+                    case 'k': capturedPiece = new King(color); break;
+                }
+            }
+            
+            // Handle promoted piece
+            Piece* promotedPiece = nullptr;
+            if (!moveJson["promotionPiece"].is_null()) {
+                char type = moveJson["promotionPiece"].get<std::string>()[0];
+                // Promotion piece color should be the same as the moving piece
+                // We need to track this better
+                char color = 'W'; // Default
+                
+                switch(type) {
+                    case 'p': promotedPiece = new Pawn(color); break;
+                    case 'r': promotedPiece = new Rook(color); break;
+                    case 'n': promotedPiece = new Knight(color); break;
+                    case 'b': promotedPiece = new Bishop(color); break;
+                    case 'q': promotedPiece = new Queen(color); break;
+                    case 'k': promotedPiece = new King(color); break;
+                }
+            }
+            
+            _prevMove->addMove(startCol, startRow, endCol, endRow, isSpecial, promotedPiece, capturedPiece);
         }
-        capturePiece = makePiece(newPiece);
-        i++;
-
-        // Get en passant
-        while (thisLine[i] == ',' || thisLine[i] == ' ') i++;
-        enPassant = thisLine[i] == 'T' ? true : false;
-        i++;
-
-        // Get promotion piece
-        while (thisLine[i] != '{') i++;
-        newPiece = "";
-        i++;
-        while (thisLine[i] != '}') {
-            newPiece += thisLine[i];
-            i++;
-        }
-        promotePiece = makePiece(newPiece);
-
-        // Add node to moveNode
-        _prevMove->addMove(oldFile, oldRank, newFile, newRank, enPassant, promotePiece, capturePiece);
-
-        // Go to next line
-        _file.getline(thisLine, 39);
+        return true;
+    } catch (const std::exception& e) {
+        std::cerr << "Error loading moves: " << e.what() << std::endl;
+        return false;
     }
-    _file.close();
-    return true;
 }
 
 bool State::loadGame(Piece* board[8][8], MoveNode** node) {
-    // Load from files
+    // Load from JSON files
     if (!loadCurrentBoard()) return false;
     if (!loadPrevMoves()) return false;
 
@@ -230,80 +250,99 @@ bool State::loadGame(Piece* board[8][8], MoveNode** node) {
 }
 
 void State::saveState() {
-    // Step One: Save Board
-    _file.open("./build/board.txt", fstream::out | fstream::trunc);
-    _file.close();
+    // Save board and moves to JSON files
     saveBoard();
-
-    // Step Two: Save Moves
-    _file.open("./build/moves.txt", fstream::out | fstream::trunc);
-    _file.close();
     saveAllMoves(_prevMove);
 }
 
 void State::saveState(Piece* board[8][8]) {
-    // Step One: Save Board
+    // Update board and save
     updateBoard(board);
     saveBoard();
     
-    // Step Two: Save Previous Move
+    // Save moves
     saveMove(_prevMove);
 }
 
 void State::saveBoard() {
-    // Save board (re-write board save)
-
-    // Clear board save file
-    _file.open("./build/board.txt", fstream::out | fstream::trunc);
-    _file.close();
-
-    // Open file
-    _file.open("./build/board.txt", fstream::app);
+    // Save board as JSON
+    json j = json::array();
     
-    // Write to file
-    for (int rank = 7; rank >= 0; rank--) {
+    for (int rank = 0; rank < 8; rank++) {
+        json row = json::array();
         for (int file = 0; file < 8; file++) {
-            _file << "{"; // begin piece
-            
-            _file << storePiece(currentBoard[file][rank]);
-
-            _file << "} "; // end piece
+            json pieceJson;
+            if (currentBoard[file][rank] != nullptr) {
+                pieceJson["type"] = std::string(1, currentBoard[file][rank]->getType());
+                pieceJson["color"] = std::string(1, currentBoard[file][rank]->getColor());
+                pieceJson["moved"] = currentBoard[file][rank]->getMoveCount();
+            } else {
+                pieceJson["type"] = "";
+                pieceJson["color"] = "";
+                pieceJson["moved"] = 0;
+            }
+            row.push_back(pieceJson);
         }
-        _file << "\n"; // new line
+        j.push_back(row);
     }
-    _file.close();
+    
+    // Save to file
+    ofstream file("./build/board.json");
+    if (file.is_open()) {
+        file << j.dump(2);  // Pretty print with 2-space indent
+        file.close();
+    }
 }
 
 void State::saveAllMoves(MoveNode* node) {
-    // Save all moves (re-write moves save)
-
-    // Recursively call function until the final node
-    if (node->prev() == nullptr) {
-        return;
-    } else {
-        saveAllMoves(node->prev());
+    // Collect all moves in reverse chronological order
+    std::vector<MoveNode*> moves;
+    MoveNode* current = node;
+    
+    while (current != nullptr && current->prev() != nullptr) {
+        moves.push_back(current);
+        current = current->prev();
     }
-
-    // Save this node
-    saveMove(node);
-
-    return;
+    
+    // Reverse to get chronological order
+    std::reverse(moves.begin(), moves.end());
+    
+    // Create JSON array
+    json j = json::array();
+    
+    for (MoveNode* move : moves) {
+        json moveJson;
+        moveJson["startRow"] = move->getOldRank();
+        moveJson["startCol"] = move->getOldFile();
+        moveJson["endRow"] = move->getNewRank();
+        moveJson["endCol"] = move->getNewFile();
+        
+        if (move->getCapturedPiece() != nullptr) {
+            moveJson["capturedPiece"] = std::string(1, move->getCapturedPiece()->getType());
+        } else {
+            moveJson["capturedPiece"] = nullptr;
+        }
+        
+        moveJson["isSpecial"] = move->enPassant();
+        
+        if (move->getPromotedPiece() != nullptr) {
+            moveJson["promotionPiece"] = std::string(1, move->getPromotedPiece()->getType());
+        } else {
+            moveJson["promotionPiece"] = nullptr;
+        }
+        
+        j.push_back(moveJson);
+    }
+    
+    // Save to file
+    ofstream file("./build/moves.json");
+    if (file.is_open()) {
+        file << j.dump(2);
+        file.close();
+    }
 }
 
 void State::saveMove(MoveNode* node) {
-    // Save the most recent move
-    char enPassant = node->enPassant() ? 'T' : 'F';
-
-    // Open Moves Save
-    _file.open("./build/moves.txt", fstream::app);
-    
-    // Append Most Recent Move
-    _file << "{";
-    _file << node->getOldFile() << ", " << node->getOldRank() << ", ";
-    _file << node->getNewFile() << ", " << node->getNewRank() << ", ";
-    _file << '{' << storePiece(node->getCapturedPiece()) << "}, ";
-    _file << enPassant << ", {" << "}}\n";
-
-    // Close file
-    _file.close();
+    // Just call saveAllMoves to rewrite the entire file
+    saveAllMoves(node);
 }

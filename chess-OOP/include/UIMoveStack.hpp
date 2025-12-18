@@ -1,5 +1,4 @@
-#ifndef UIMOVESTACK_H
-#define UIMOVESTACK_H
+#pragma once
 
 #include <SFML/Graphics.hpp>
 #include <string>
@@ -159,4 +158,3 @@ class UIMoveStack : public Drawable, public Transformable
         }
 };
 
-#endif

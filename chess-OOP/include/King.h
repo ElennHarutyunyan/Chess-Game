@@ -1,5 +1,4 @@
-#ifndef KING_H
-#define KING_H
+#pragma once////header fayly nermucvum e mek angam kanxum e krknaki sahmanumy
 
 #include "Piece.h"
 
@@ -11,5 +10,3 @@ class King : public Piece {
         // Check whether a move is valid
         bool checkMoveValidity(int oldFile, int oldRank, int newFile, int newRank);
 };
-
-#endif//KING_H

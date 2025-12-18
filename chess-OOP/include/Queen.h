@@ -1,5 +1,4 @@
-#ifndef QUEEN_H
-#define QUEEN_H
+#pragma once 
 
 #include "Piece.h"
 
@@ -11,5 +10,3 @@ class Queen : public Piece {
         // Check whether a move is valid
         bool checkMoveValidity(int oldFile, int oldRank, int newFile, int newRank);
 };
-
-#endif//QUEEN_H

@@ -1,5 +1,4 @@
-#ifndef MOVENODE_H
-#define MOVENODE_H
+#pragma once 
 
 #include "Piece.h"
 
@@ -7,31 +6,31 @@ class MoveNode {
     /* LINKED LIST */
     private:
         // Stores move information
-        int _oldFile;
-        int _oldRank;
-        int _newFile;
-        int _newRank;
+        int _oldFile;//hin syuni dirqy
+        int _oldRank;//hin toxi dirqna
+        int _newFile;//nor syuni dirq
+        int _newRank;//nor toxi dirqy
 
         // Stores the captured piece
-        Piece* _capturedPiece;
+        Piece* _capturedPiece;//ete vercnenq hakarakordi qary
 
         // Stores the promoted piece
-        Piece* _promotedPiece;
+        Piece* _promotedPiece;//zinvory hasav verjin vandak hakarakordi
 
         // Did this move take by en passant?
-        bool _enPassant;
+        bool _enPassant;//zinvori koxancik vercman gaxapar
 
         // Stores a pointer to the previous node
-        MoveNode* _prevNode;
+        MoveNode* _prevNode;//pahuma naxord nodei hascen
 
     public:
     
         // Constructors
         MoveNode();
         MoveNode(int oldFile, int oldRank, int newFile, int newRank, 
-                bool enPassant, Piece* promotedPiece, Piece* capturedPiece);
+                bool enPassant, Piece* promotedPiece, Piece* capturedPiece);//hanguyc aranc prev
         MoveNode(int oldFile, int oldRank, int newFile, int newRank, 
-                bool enPassant, Piece* promotedPiece, Piece* capturedPiece, MoveNode*);
+                bool enPassant, Piece* promotedPiece, Piece* capturedPiece, MoveNode*);//nor sharjum
 
         // Add move to list
         void addMove(int oldFile, int oldRank, int newFile, int newRank, 
@@ -40,15 +39,14 @@ class MoveNode {
         // Access previous node
         MoveNode* prev();
         MoveNode* prev(int distance);
-
         // Access information
         int getOldFile();
         int getOldRank();
         int getNewFile();
         int getNewRank();
-        Piece* getCapturedPiece();
-        bool enPassant();
-        Piece* getPromotedPiece();
+        Piece* getCapturedPiece();//vercvac xaxaqar
+        bool enPassant();//koxancik vercnel
+        Piece* getPromotedPiece();//hasela verjin rank
 
         // Reverse the input board by input moves
         void reverseBoard(Piece* board[8][8], int moves);
@@ -58,5 +56,3 @@ class MoveNode {
         // Destructor
         ~MoveNode();
 };
-
-#endif//MOVENODE_H

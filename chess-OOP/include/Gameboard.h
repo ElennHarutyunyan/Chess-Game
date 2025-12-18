@@ -1,9 +1,11 @@
-#ifndef GAMEBOARD_H
-#define GAMEBOARD_H
+#pragma once
 
 #include "Piece.h"
 #include "MoveNode.h"
 #include "State.h"
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
 
 class Gameboard {
     private:
@@ -38,6 +40,9 @@ class Gameboard {
         // Output board to stdout. Displays from whites POV by default.
         void visualiseTextBoard();
         void visualiseTextBoard(char color);
+        // JSON serialization
+        json toJSON();                    // Convert the board and prevMove to JSON
+        void fromJSON(const json& j);     // Load board and prevMove from JSON
 
         // Remove a piece from the board
         void removePiece(int file, int rank);
@@ -123,4 +128,3 @@ class Gameboard {
         ~Gameboard();
 };
 
-#endif//GAMEBOARD_H

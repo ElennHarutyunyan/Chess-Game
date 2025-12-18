@@ -1,5 +1,4 @@
-#ifndef KNIGHT_H
-#define KNIGHT_H
+#pragma once
 
 #include "Piece.h"
 
@@ -11,5 +10,3 @@ class Knight : public Piece {
         // Check whether a move is valid
         bool checkMoveValidity(int oldFile, int oldRank, int newFile, int newRank);
 };
-
-#endif//KNIGHT_H

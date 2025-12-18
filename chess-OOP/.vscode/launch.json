@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": false,
-      "cwd": "/home/elen/chess-OOP",
-      "program": "/home/elen/chess-OOP/build/Debug/outDebug",
+      "cwd": "/home/elen/p/chess-OOP",
+      "program": "/home/elen/p/chess-OOP/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

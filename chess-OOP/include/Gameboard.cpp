@@ -2,6 +2,7 @@
 #include "Queen.h"
 #include <iostream>
 #include <cstdlib>
+#include <fstream> // For file operations
 using namespace std;
 
 Gameboard::Gameboard() {
@@ -745,4 +746,48 @@ void Gameboard::unreverseBoard(int moves) {
 
 Gameboard::~Gameboard() {
     delete prevMove;
+}
+json Gameboard::toJSON() {
+    json j;
+    // Save board
+    for (int rank = 0; rank < 8; rank++) {
+        for (int file = 0; file < 8; file++) {
+            if (board[file][rank] != nullptr) {
+                j["board"][rank][file]["type"] = board[file][rank]->getType();
+                j["board"][rank][file]["color"] = board[file][rank]->getColor();
+                j["board"][rank][file]["moveCount"] = board[file][rank]->getMoveCount();
+            } else {
+                j["board"][rank][file] = nullptr;
+            }
+        }
+    }
+    // Skip prevMove for now
+    return j;
+}
+
+void Gameboard::fromJSON(const json& j) {
+    clearBoard();
+    // Load board
+    for (int rank = 0; rank < 8; rank++) {
+        for (int file = 0; file < 8; file++) {
+            if (!j["board"][rank][file].is_null()) {
+                char type = j["board"][rank][file]["type"].get<char>();
+                char color = j["board"][rank][file]["color"].get<char>();
+                int moveCount = j["board"][rank][file]["moveCount"];
+
+                Piece* piece = nullptr;
+                switch(type) {
+                    case 'p': piece = new Pawn(color); break;
+                    case 'r': piece = new Rook(color); break;
+                    case 'n': piece = new Knight(color); break;
+                    case 'b': piece = new Bishop(color); break;
+                    case 'q': piece = new Queen(color); break;
+                    case 'k': piece = new King(color); break;
+                }
+                piece->setMoveCount(moveCount);
+                addPiece(file, rank, piece);
+            }
+        }
+    }
+    // Skip prevMove for now
 }

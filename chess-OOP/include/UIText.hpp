@@ -1,5 +1,4 @@
-#ifndef UITEXT_H
-#define UITEXT_H
+#pragma once
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
@@ -51,4 +50,3 @@ class UIText : public Drawable, public Transformable
         }
 };
 
-#endif

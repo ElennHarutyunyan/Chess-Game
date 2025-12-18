@@ -1,5 +1,4 @@
-#ifndef PIECE_H
-#define PIECE_H
+#pragma once 
 
 class Piece {
     protected:
@@ -66,4 +65,3 @@ class Piece {
         virtual ~Piece() = default;
 };
 
-#endif//PIECE_H

@@ -1,6 +1,4 @@
-#ifndef PAWN_H
-#define PAWN_H
-
+#pragma once 
 #include "Piece.h"
 
 class Pawn : public Piece {
@@ -15,4 +13,3 @@ class Pawn : public Piece {
         bool checkCaptureValidity(int oldFile, int oldRank, int newFile, int newRank);
 };
 
-#endif//PAWN_H

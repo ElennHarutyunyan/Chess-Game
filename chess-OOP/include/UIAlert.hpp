@@ -1,5 +1,4 @@
-#ifndef UIALERT_H
-#define UIALERT_H
+#pragma once
 
 #include <SFML/Graphics.hpp>
 #include <string>
@@ -96,4 +95,3 @@ class UIAlert : public Drawable, public Transformable
         }
 };
 
-#endif

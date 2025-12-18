@@ -1,5 +1,4 @@
-#ifndef UIBUTTON_H
-#define UIBUTTON_H
+#pragma once
 
 #include <SFML/Graphics.hpp>
 #include <string>
@@ -92,4 +91,3 @@ class UIButton : public Drawable, public Transformable
         }
 };
 
-#endif

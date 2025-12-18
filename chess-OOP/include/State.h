@@ -1,5 +1,4 @@
-#ifndef STATE_H
-#define STATE_H
+#pragma once
 
 #include "Pawn.h"
 #include "King.h"
@@ -13,27 +12,24 @@
 using std::fstream;
 using std::string;
 
-class State {
+class State {//խաղի ամբողջ վիճակը պահելու, թարմացնելու և ֆայլերում պահպանելու համար.
     private:
-        // Stores a copy of the current board
-        Piece* currentBoard[8][8];
-        // Stores a pointer to the previous move
-        MoveNode* _prevMove;
-        // An object to interact with files
-        fstream _file;
+  
+        Piece* currentBoard[8][8];//pahpanum e yntacik taxtaky
 
-        // Create a piece based off input string information
-        Piece* makePiece(string pieceStr);
-        // Create string to store data about a piece
-        string storePiece(Piece* piece);
+        MoveNode* _prevMove;//cucich depi verjin qayl
+       
+        fstream _file;//fstream object save ev loadi hamar
 
-        // Update the copy of the board
-        void updateBoard(Piece* board[8][8]);
+        Piece* makePiece(string pieceStr);//Piece object faylic kardalu hamar
+        string storePiece(Piece* piece);//string vory pahuma piece-i masin data
+
+        void updateBoard(Piece* board[8][8]);//popoxuma taxtaky
 
         // Load currentBoard from file
-        bool loadCurrentBoard();
-        // Load _prevMove from file
-        bool loadPrevMoves();
+        bool loadCurrentBoard();//faylic load a anum currentboard
+      
+        bool loadPrevMoves();//load a anum naxord sharjumy
 
         // Save board to file (overwrite save)
         void saveBoard();
@@ -60,5 +56,3 @@ class State {
         // Load currentBoard and _prevMove to input board & node
         bool loadGame(Piece* board[8][8], MoveNode** node);
 };
-
-#endif//STATE_H

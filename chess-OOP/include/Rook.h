@@ -1,6 +1,4 @@
-#ifndef ROOK_H
-#define ROOK_H
-
+#pragma once 
 #include "Piece.h"
 
 class Rook : public Piece {
@@ -11,5 +9,3 @@ class Rook : public Piece {
         // Check whether a move is valid
         bool checkMoveValidity(int oldFile, int oldRank, int newFile, int newRank);
 };
-
-#endif//ROOK_H
