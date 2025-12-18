@@ -1,0 +1,83 @@
+[
+  {
+    "capturedPiece": null,
+    "endCol": 5,
+    "endRow": 3,
+    "isSpecial": false,
+    "promotionPiece": null,
+    "startCol": 5,
+    "startRow": 1
+  },
+  {
+    "capturedPiece": null,
+    "endCol": 5,
+    "endRow": 4,
+    "isSpecial": false,
+    "promotionPiece": null,
+    "startCol": 5,
+    "startRow": 6
+  },
+  {
+    "capturedPiece": null,
+    "endCol": 6,
+    "endRow": 3,
+    "isSpecial": false,
+    "promotionPiece": null,
+    "startCol": 6,
+    "startRow": 1
+  },
+  {
+    "capturedPiece": null,
+    "endCol": 6,
+    "endRow": 4,
+    "isSpecial": false,
+    "promotionPiece": null,
+    "startCol": 6,
+    "startRow": 6
+  },
+  {
+    "capturedPiece": null,
+    "endCol": 5,
+    "endRow": 2,
+    "isSpecial": false,
+    "promotionPiece": null,
+    "startCol": 6,
+    "startRow": 0
+  },
+  {
+    "capturedPiece": null,
+    "endCol": 4,
+    "endRow": 5,
+    "isSpecial": false,
+    "promotionPiece": null,
+    "startCol": 4,
+    "startRow": 6
+  },
+  {
+    "capturedPiece": null,
+    "endCol": 7,
+    "endRow": 2,
+    "isSpecial": false,
+    "promotionPiece": null,
+    "startCol": 5,
+    "startRow": 0
+  },
+  {
+    "capturedPiece": null,
+    "endCol": 7,
+    "endRow": 5,
+    "isSpecial": false,
+    "promotionPiece": null,
+    "startCol": 7,
+    "startRow": 6
+  },
+  {
+    "capturedPiece": null,
+    "endCol": 6,
+    "endRow": 0,
+    "isSpecial": false,
+    "promotionPiece": null,
+    "startCol": 4,
+    "startRow": 0
+  }
+]
